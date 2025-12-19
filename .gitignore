@@ -1,0 +1,24 @@
+# Azure Developer CLI
+.azure/
+
+# Environment variables
+.env
+
+# Build artifacts
+*.bicep.json
+infra/**/*.json
+!infra/main.parameters.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
