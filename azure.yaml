@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: purview-infra-as-code
+metadata:
+  template: purview-infra-as-code@0.0.1-beta
+
+# This template provisions infrastructure only (Microsoft Purview).
+# There is no application code to deploy, so azd deploy is intentionally not used.
+# Only azd provision is supported and required.
+
+infra:
+  provider: bicep
+  path: infra
+  module: main
+
+# No services defined - this is infrastructure-only
+# azd deploy will not be used in this project
