@@ -50,17 +50,50 @@ For governance configuration automation, consider:
 - [Purview REST APIs](https://learn.microsoft.com/en-us/rest/api/purview/)
 - [Azure CLI purview extension](https://learn.microsoft.com/en-us/cli/azure/purview)
 
-## Prerequisites
+## Getting Started
+
+### 0. Check prerequisites
 
 - **Azure Subscription**: An active Azure subscription
 - **Azure CLI**: Version 2.50.0 or higher
 - **Azure Developer CLI (azd)**: Version 1.5.0 or higher
   - Install: https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd
 - **Permissions**: 
-  - Contributor or Owner role on the subscription
-  - Ability to create resource groups and role assignments
+  - **Contributor** role on the subscription (for creating resources)
+  - Ability to create role assignments (for the optional Reader role assignment on the resource group)
 
-## Getting Started
+#### Check Your Azure Permissions
+
+Before provisioning, verify you have the required permissions:
+
+```bash
+# Sign in to Azure CLI
+az login
+
+# Get your current user's object ID
+az ad signed-in-user show --query id -o tsv
+
+# List your role assignments on the subscription
+az role assignment list --assignee $(az ad signed-in-user show --query id -o tsv) --output table
+
+# Check if you have Owner or User Access Administrator role (required for role assignments)
+az role assignment list --assignee $(az ad signed-in-user show --query id -o tsv) --query "[?roleDefinitionName=='Owner' || roleDefinitionName=='User Access Administrator'].{Role:roleDefinitionName, Scope:scope}" --output table
+```
+
+**Required Roles**:
+- **Contributor** at subscription level: Required for creating resources
+- **User Access Administrator** (optional): Only needed if `AZURE_PRINCIPAL_ID` is set, to create the Reader role assignment on the resource group
+
+#### Skip Role Assignment (Workaround)
+
+If you encounter permission errors during deployment, you can skip the role assignment by clearing the `AZURE_PRINCIPAL_ID` environment variable:
+
+```bash
+azd env set AZURE_PRINCIPAL_ID ""
+azd provision
+```
+
+This will provision Purview without creating the Reader role assignment on the resource group.
 
 ### 1. Initialize the Environment
 
@@ -75,7 +108,14 @@ azd init
 When prompted:
 - **Environment name**: Choose a name (e.g., `dev`, `prod`, `myenv`)
 - **Azure subscription**: Select your subscription
-- **Azure location**: Choose a region (e.g., `japaneast`)
+- **Azure location**: Choose a supported region (e.g., `japaneast` if available)
+
+> [!NOTE]
+> Microsoft Purview is only available in limited regions. Check available regions before provisioning:
+> ```bash
+> # List supported Purview regions (one per line, in azd-compatible format)
+> az provider show --namespace Microsoft.Purview --query "resourceTypes[?resourceType=='accounts'].locations | [0]" -o tsv | tr '\t' '\n' | tr '[:upper:]' '[:lower:]' | tr -d ' '
+> ```
 
 ### 2. (One-time) Register the Purview resource provider
 
@@ -98,7 +138,7 @@ This command will:
 1. Create a resource group named `rg-{environmentName}`
 2. Provision a Microsoft Purview account with a globally unique name
 3. Configure system-assigned managed identity
-4. Assign Owner role on the resource group (if `AZURE_PRINCIPAL_ID` is provided)
+4. Assign Reader role on the resource group (if `AZURE_PRINCIPAL_ID` is provided)
 5. Output the Purview endpoint and resource details
 
 ### 4. Verify the Deployment
