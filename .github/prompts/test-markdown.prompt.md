@@ -1,6 +1,6 @@
 ---
 description: Test Markdown file content by executing step-by-step instructions
-agent: "agent"
+mode: agent
 argument-hint: "Specify the Markdown file to test"
 tools: ["codebase", "terminal"]
 ---
@@ -11,7 +11,7 @@ This prompt helps you test the content of Markdown files, particularly those con
 
 ## Target File
 
-Test the Markdown file: **${input:markdownFile:path/to/file.md}**
+Test the Markdown file: **${input:markdownFile:QUICKSTART.md}**
 
 ## Instructions
 
