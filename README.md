@@ -65,6 +65,9 @@ For governance configuration automation, consider:
 ### 1. Initialize the Environment
 
 ```bash
+git clone https://github.com/rukasakurai/purview-infra-as-code.git
+cd purview-infra-as-code
+
 azd auth login
 azd init
 ```
@@ -74,7 +77,18 @@ When prompted:
 - **Azure subscription**: Select your subscription
 - **Azure location**: Choose a region (e.g., `japaneast`)
 
-### 2. Provision the Infrastructure
+### 2. (One-time) Register the Purview resource provider
+
+Purview provisioning will fail validation if the `Microsoft.Purview` resource provider isn’t registered on the target subscription.
+
+```bash
+az provider register --namespace Microsoft.Purview
+az provider show --namespace Microsoft.Purview --query "registrationState" -o tsv
+```
+
+If registration is in progress, wait a few minutes and re-run the `show` command until it returns `Registered`.
+
+### 3. Provision the Infrastructure
 
 ```bash
 azd provision
@@ -84,10 +98,10 @@ This command will:
 1. Create a resource group named `rg-{environmentName}`
 2. Provision a Microsoft Purview account with a globally unique name
 3. Configure system-assigned managed identity
-4. Assign Owner role to your user on the resource group (if authenticated)
+4. Assign Owner role on the resource group (if `AZURE_PRINCIPAL_ID` is provided)
 5. Output the Purview endpoint and resource details
 
-### 3. Verify the Deployment
+### 4. Verify the Deployment
 
 After provisioning completes, you can:
 
@@ -95,11 +109,17 @@ After provisioning completes, you can:
 # View outputs
 azd env get-values
 
-# Access Purview Governance Portal
-# URL will be: https://{purviewAccountName}.purview.azure.com
+# Legacy account endpoint (may still appear in documentation)
+# https://{purviewAccountName}.purview.azure.com
 ```
 
 You can now log into the Purview Governance Portal to configure data sources, scans, and policies.
+You can now access Microsoft Purview:
+
+- **New Microsoft Purview portal**: https://purview.microsoft.com
+- **Classic governance portal** (if needed): https://web.purview.azure.com/resource/{purviewAccountName}
+
+Note: The legacy account endpoint format https://{purviewAccountName}.purview.azure.com may still appear in documentation as an *endpoint*, but the recommended portal entry point is https://purview.microsoft.com.
 
 ## Configuration
 
@@ -124,11 +144,13 @@ azd provision
 By default, the Purview account name is generated as `purview-{uniqueString}`. To specify a custom name:
 
 ```bash
-azd env set PURVIEW_ACCOUNT_NAME my-custom-purview
+azd env set PURVIEW_ACCOUNT_NAME mycustompurview123
 azd provision
 ```
 
-**Note**: Purview account names must be globally unique, 3-63 characters, lowercase letters and numbers only.
+**Note**: Purview account names must be globally unique. Spaces and symbols aren't allowed.
+
+For best compatibility, use a DNS-safe name (letters/numbers and hyphens), and avoid leading/trailing hyphens.
 
 ## Multiple Environments
 
@@ -149,6 +171,10 @@ azd provision
 azd env select dev
 azd env select prod
 ```
+> [!IMPORTANT]
+> Most tenants can create **only one** Microsoft Purview account per tenant. Creating multiple `azd` environments is supported,
+> but provisioning more than one Purview account in the same tenant typically fails unless your tenant has a preexisting quota
+> that allows multiple accounts.
 
 ## Cleanup
 
@@ -194,8 +220,7 @@ az provider show --namespace Microsoft.Purview --query "registrationState"
 Not all Azure regions support Purview. Check supported regions:
 
 ```bash
-az provider show --namespace Microsoft.Purview \
-  --query "resourceTypes[?resourceType=='accounts'].locations" -o table
+az provider show --namespace Microsoft.Purview --query "resourceTypes[?resourceType=='accounts'].locations" -o table
 ```
 
 ## Contributing

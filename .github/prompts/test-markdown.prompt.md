@@ -1,8 +1,7 @@
 ---
 description: Test Markdown file content by executing step-by-step instructions
-mode: agent
+mode: 'agent'
 argument-hint: "Specify the Markdown file to test"
-tools: ["codebase", "terminal"]
 ---
 
 # Test Markdown File Content
@@ -11,7 +10,7 @@ This prompt helps you test the content of Markdown files, particularly those con
 
 ## Target File
 
-Test the Markdown file: **${input:markdownFile:QUICKSTART.md}**
+Test the Markdown file: **${input:markdownFile:README.md}**
 
 ## Instructions
 
@@ -45,7 +44,21 @@ Test the Markdown file: **${input:markdownFile:QUICKSTART.md}**
        - Any error messages or logs
        - Suggestions for resolution if applicable
 
-4. **Report Results**:
+4. **Update the Target Markdown File with Successful Test Date**:
+    - Only if the overall status is `PASS` or `PASS with fixes`, update the *target Markdown file itself* to record the last successfully tested date.
+    - If the overall status is `FAIL`, do **not** modify the target Markdown file.
+    - Use today's date in ISO format: `YYYY-MM-DD`.
+    - If the file already contains a section titled `## Documentation Test Status`, update it in place (do not create duplicates).
+    - Otherwise, append the section to the end of the file.
+    - The section must be exactly in this format:
+
+       ```
+       ## Documentation Test Status
+
+       - Last successfully tested: YYYY-MM-DD
+       ```
+
+5. **Report Results**:
    - Summarize which steps passed and which failed
    - List any fixes made
    - Provide links to any GitHub issues created
