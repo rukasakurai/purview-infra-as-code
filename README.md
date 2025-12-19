@@ -8,13 +8,11 @@ This repository provides a reproducible, code-only setup for provisioning **Micr
 ## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
 - [What Can Be Automated via IaC](#what-can-be-automated-via-iac)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
 - [Configuration](#configuration)
 - [Multiple Environments](#multiple-environments)
-- [Project Structure](#project-structure)
 - [Cleanup](#cleanup)
 - [Troubleshooting](#troubleshooting)
 - [FAQ](#faq)
@@ -31,18 +29,6 @@ This project treats **Purview as infrastructure**, not as an application. It pro
 - **Infrastructure-Only**: This repository provisions Azure resources only. There is no application code to deploy.
 - **No Portal Required**: Everything is automated via code. No manual steps in the Azure Portal are needed.
 - **azd-Compatible**: Uses Azure Developer CLI for a streamlined, reproducible provisioning experience.
-
-## Features
-
-✨ **Key Capabilities:**
-
-- 🚀 **One-Command Deployment**: Provision Purview with a single `azd provision` command
-- 🔄 **Reproducible**: Identical infrastructure every time, version-controlled setup
-- 🔐 **Managed Identity**: Automatic system-assigned identity configuration
-- 👥 **RBAC Integration**: Automatic role assignment for authenticated users
-- 🌍 **Multi-Environment**: Easy dev/test/prod environment management
-- 📝 **Pure Infrastructure as Code**: 100% Bicep templates, no manual Portal steps
-- 🧹 **Clean Teardown**: Complete resource cleanup with `azd down`
 
 ## What Can Be Automated via IaC
 
@@ -205,30 +191,6 @@ azd env select prod
 > but provisioning more than one Purview account in the same tenant typically fails unless your tenant has a preexisting quota
 > that allows multiple accounts.
 
-## Project Structure
-
-```
-purview-infra-as-code/
-├── .github/                 # GitHub workflows and configurations
-├── infra/                   # Infrastructure as Code (Bicep templates)
-│   ├── main.bicep          # Main orchestration template
-│   ├── main.parameters.json # Parameter mappings
-│   └── resources/          # Modular resource definitions
-│       ├── purview.bicep   # Purview account module
-│       └── roleAssignments.bicep # RBAC assignments
-├── azure.yaml              # Azure Developer CLI configuration
-├── .env.example            # Example environment variables
-├── README.md               # This file
-├── QUICKSTART.md           # Quick start guide (10-minute setup)
-├── ARCHITECTURE.md         # Detailed architecture documentation
-└── CONTRIBUTING.md         # Contribution guidelines
-```
-
-📚 **Documentation Guide:**
-- **New to this project?** Start with [QUICKSTART.md](./QUICKSTART.md)
-- **Want to understand the design?** Read [ARCHITECTURE.md](./ARCHITECTURE.md)
-- **Planning to contribute?** See [CONTRIBUTING.md](./CONTRIBUTING.md)
-
 ## Cleanup
 
 To delete all resources:
@@ -328,10 +290,12 @@ curl -fsSL https://aka.ms/install-azd.sh | bash
 
 ### How much does this cost?
 
-💰 **Approximately $150-160/month** for a basic setup:
-- Purview Account: ~$140/month (base capacity unit)
+💰 **Approximately $250-300/month** for a basic setup (as of 2025):
+- Purview Account: ~$246/month (1 Capacity Unit at $0.342/hour)
 - Managed Storage: ~$2-5/month
-- Event Hub: ~$10-15/month
+- Event Hub (Standard): ~$22/month (1 Throughput Unit)
+
+**Note**: Microsoft updated Purview pricing in January 2025. The new model charges based on governed assets rather than capacity units. Costs will vary based on the number of governed assets and data management runs. Use the [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) for accurate estimates.
 
 Use `azd down` to delete resources when not in use to avoid charges.
 
@@ -393,24 +357,7 @@ This project is provided as-is for educational and reference purposes. See the r
 
 ## Related Resources
 
-### Documentation
-- 📖 [Microsoft Purview Documentation](https://learn.microsoft.com/azure/purview/) - Official Purview documentation
-- 🛠️ [Azure Developer CLI Documentation](https://learn.microsoft.com/azure/developer/azure-developer-cli/) - Learn about azd
-- 📝 [Bicep Documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/) - Infrastructure as Code reference
-- 🔌 [Purview REST API Reference](https://learn.microsoft.com/rest/api/purview/) - API documentation
-
-### Tools
-- [Purview PowerShell Module](https://learn.microsoft.com/powershell/module/az.purview/) - Automate Purview configuration
-- [Azure CLI Purview Extension](https://learn.microsoft.com/cli/azure/purview) - Command-line management
-
-### Community
-- 💬 [GitHub Discussions](https://github.com/rukasakurai/purview-infra-as-code/discussions) - Ask questions
-- 🐛 [Report Issues](https://github.com/rukasakurai/purview-infra-as-code/issues) - Bug reports and feature requests
-
-### Related Projects
-- [Azure Developer CLI Templates](https://azure.github.io/awesome-azd/) - More azd templates
-- [Azure Quickstart Templates](https://github.com/Azure/azure-quickstart-templates) - Bicep template examples
-
----
-
-**Made with ❤️ for the Azure community** | [⭐ Star this repo](https://github.com/rukasakurai/purview-infra-as-code) if you find it helpful!
+- [Microsoft Purview Documentation](https://learn.microsoft.com/azure/purview/)
+- [Azure Developer CLI Documentation](https://learn.microsoft.com/azure/developer/azure-developer-cli/)
+- [Bicep Documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/)
+- [Purview REST API Reference](https://learn.microsoft.com/rest/api/purview/)
