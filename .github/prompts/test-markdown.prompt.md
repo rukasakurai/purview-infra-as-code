@@ -52,11 +52,14 @@ Test the Markdown file: **${input:markdownFile:README.md}**
     - Otherwise, append the section to the end of the file.
     - The section must be exactly in this format:
 
-       ```
-       ## Documentation Test Status
-
-       - Last successfully tested: YYYY-MM-DD
-       ```
+      ```
+      ## Documentation Test History
+      ### YYYY-MM-DD
+      - Result: PASS / PASS with fixes / FAIL
+      - OS: Windows 11
+      - Shell: Git Bash
+      - Tester: Automated Documentation Tester
+      ```
 
 5. **Report Results**:
    - Summarize which steps passed and which failed

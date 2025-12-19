@@ -9,7 +9,6 @@ This repository provides a reproducible, code-only setup for provisioning **Micr
 
 - [Overview](#overview)
 - [What Can Be Automated via IaC](#what-can-be-automated-via-iac)
-- [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
 - [Configuration](#configuration)
 - [Multiple Environments](#multiple-environments)
@@ -132,16 +131,21 @@ When prompted:
 > az provider show --namespace Microsoft.Purview --query "resourceTypes[?resourceType=='accounts'].locations | [0]" -o tsv | tr '\t' '\n' | tr '[:upper:]' '[:lower:]' | tr -d ' '
 > ```
 
-### 2. (One-time) Register the Purview resource provider
+### 2. (One-time) Register the required resource providers
 
-Purview provisioning will fail validation if the `Microsoft.Purview` resource provider isn’t registered on the target subscription.
+Purview provisioning will fail if the required resource providers aren't registered on the target subscription. Purview requires both `Microsoft.Purview` and `Microsoft.EventHub` (for managed Event Hub used internally).
 
 ```bash
+# Register required resource providers
 az provider register --namespace Microsoft.Purview
+az provider register --namespace Microsoft.EventHub
+
+# Check registration status (wait until both show "Registered")
 az provider show --namespace Microsoft.Purview --query "registrationState" -o tsv
+az provider show --namespace Microsoft.EventHub --query "registrationState" -o tsv
 ```
 
-If registration is in progress, wait a few minutes and re-run the `show` command until it returns `Registered`.
+If registration is in progress, wait a few minutes and re-run the `show` commands until they return `Registered`.
 
 ### 3. Provision the Infrastructure
 
@@ -401,3 +405,9 @@ This project is provided as-is for educational and reference purposes. See the r
 - [Azure Developer CLI Documentation](https://learn.microsoft.com/azure/developer/azure-developer-cli/)
 - [Bicep Documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/)
 - [Purview REST API Reference](https://learn.microsoft.com/rest/api/purview/)
+
+## Documentation Test Status
+### Last successfully tested
+- Date: 202-12-19
+- OS: Windows 11
+- Shell: Git Bash
