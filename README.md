@@ -19,6 +19,7 @@ This repository provides a reproducible, code-only setup for provisioning **Micr
 - [Troubleshooting](#troubleshooting)
 - [FAQ](#faq)
 - [Contributing](#contributing)
+- [License](#license)
 - [Related Resources](#related-resources)
 
 ## Overview
