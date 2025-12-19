@@ -15,6 +15,14 @@ param purviewAccountName string = ''
 @description('Id of the principal to assign as owner of the resource group')
 param principalId string = ''
 
+@description('Type of principal (User, Group, or ServicePrincipal)')
+@allowed([
+  'User'
+  'Group'
+  'ServicePrincipal'
+])
+param principalType string = 'User'
+
 // Generate a unique suffix for resource names
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = {
@@ -45,6 +53,7 @@ module roleAssignments './resources/roleAssignments.bicep' = if (!empty(principa
   scope: rg
   params: {
     principalId: principalId
+    principalType: principalType
   }
 }
 
