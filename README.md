@@ -252,7 +252,12 @@ This removes:
 **Solution**: Try a different name with additional uniqueness:
 
 ```bash
+# Linux/macOS
 azd env set PURVIEW_ACCOUNT_NAME another-unique-name-$(date +%s)
+
+# Or use any unique suffix
+azd env set PURVIEW_ACCOUNT_NAME my-purview-12345
+
 azd provision
 ```
 
@@ -394,8 +399,8 @@ This project is provided as-is for educational and reference purposes. See the r
 - 🔌 [Purview REST API Reference](https://learn.microsoft.com/rest/api/purview/) - API documentation
 
 ### Tools
-- [Purview PowerShell Module](https://learn.microsoft.com/en-us/powershell/module/az.purview/) - Automate Purview configuration
-- [Azure CLI Purview Extension](https://learn.microsoft.com/en-us/cli/azure/purview) - Command-line management
+- [Purview PowerShell Module](https://learn.microsoft.com/powershell/module/az.purview/) - Automate Purview configuration
+- [Azure CLI Purview Extension](https://learn.microsoft.com/cli/azure/purview) - Command-line management
 
 ### Community
 - 💬 [GitHub Discussions](https://github.com/rukasakurai/purview-infra-as-code/discussions) - Ask questions
