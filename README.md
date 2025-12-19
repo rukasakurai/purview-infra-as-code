@@ -1,5 +1,8 @@
 # Purview Infrastructure as Code
 
+> [!WARNING]
+> This repository is a work in progress and may include incorrect or incomplete information. Use at your own risk.
+
 This repository provides a reproducible, code-only setup for provisioning **Microsoft Purview Data Governance** in Azure using the Azure Developer CLI (azd) and Bicep templates. No Azure Portal interaction is required.
 
 ## Overview
@@ -11,27 +14,6 @@ This project treats **Purview as infrastructure**, not as an application. It pro
 - **Infrastructure-Only**: This repository provisions Azure resources only. There is no application code to deploy.
 - **No Portal Required**: Everything is automated via code. No manual steps in the Azure Portal are needed.
 - **azd-Compatible**: Uses Azure Developer CLI for a streamlined, reproducible provisioning experience.
-
-## Why Azure Developer CLI (azd)?
-
-We use `azd` instead of plain Azure CLI or Bicep CLI for several reasons:
-
-1. **Environment Management**: azd provides built-in environment management, making it easy to provision multiple instances (dev, test, prod) without manual configuration.
-2. **Parameter Handling**: Automatically manages environment variables and parameters across commands.
-3. **Simplified Workflow**: Single command (`azd provision`) handles authentication, parameter collection, and deployment.
-4. **Modern Developer Experience**: azd represents Azure's modern infrastructure provisioning approach, with better defaults and conventions.
-5. **Reproducibility**: azd up makes it easy for others to replicate the setup from a clean environment.
-
-## Why azd deploy is NOT Used
-
-This project **intentionally does not use** `azd deploy` because:
-
-1. **Infrastructure-Only Scope**: Microsoft Purview is infrastructure, not an application service that requires deployment.
-2. **No Application Code**: There are no containers, web apps, or functions to deploy. The Purview account itself is the deliverable.
-3. **Immediate Availability**: Once provisioned via `azd provision`, the Purview account is ready to use. No deployment step is needed.
-4. **Clear Separation**: This keeps the infrastructure provisioning concern separate from application deployment concerns.
-
-If you run `azd deploy`, it will exit quickly as there are no services configured—this is intentional and expected.
 
 ## What Can Be Automated via IaC
 
@@ -90,7 +72,7 @@ azd init
 When prompted:
 - **Environment name**: Choose a name (e.g., `dev`, `prod`, `myenv`)
 - **Azure subscription**: Select your subscription
-- **Azure location**: Choose a region (e.g., `eastus`, `westeurope`)
+- **Azure location**: Choose a region (e.g., `japaneast`)
 
 ### 2. Provision the Infrastructure
 
@@ -119,20 +101,6 @@ azd env get-values
 
 You can now log into the Purview Governance Portal to configure data sources, scans, and policies.
 
-## Project Structure
-
-```
-.
-├── azure.yaml                          # azd project configuration
-├── infra/
-│   ├── main.bicep                      # Main Bicep template (subscription scope)
-│   ├── main.parameters.json            # Parameter mappings for azd
-│   └── resources/
-│       ├── purview.bicep               # Purview account resource definition
-│       └── roleAssignments.bicep       # RBAC role assignments
-└── README.md                           # This file
-```
-
 ## Configuration
 
 ### Environment Variables
@@ -147,7 +115,7 @@ azd uses environment variables to parameterize deployments. Key variables:
 You can override defaults by setting environment variables before running `azd provision`:
 
 ```bash
-azd env set AZURE_LOCATION westus2
+azd env set AZURE_LOCATION japaneast
 azd provision
 ```
 
@@ -169,12 +137,12 @@ To create multiple independent Purview instances (e.g., dev and prod):
 ```bash
 # Create dev environment
 azd env new dev
-azd env set AZURE_LOCATION eastus
+azd env set AZURE_LOCATION japaneast
 azd provision
 
 # Create prod environment
 azd env new prod
-azd env set AZURE_LOCATION westeurope
+azd env set AZURE_LOCATION japaneast
 azd provision
 
 # Switch between environments
