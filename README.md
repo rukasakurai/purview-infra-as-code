@@ -5,6 +5,21 @@
 
 This repository provides a reproducible, code-only setup for provisioning **Microsoft Purview Data Governance** in Azure using the Azure Developer CLI (azd) and Bicep templates. No Azure Portal interaction is required.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [What Can Be Automated via IaC](#what-can-be-automated-via-iac)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Multiple Environments](#multiple-environments)
+- [Cleanup](#cleanup)
+- [Troubleshooting](#troubleshooting)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [License](#license)
+- [Related Resources](#related-resources)
+
 ## Overview
 
 This project treats **Purview as infrastructure**, not as an application. It provides a foundation for data governance that can be referenced in discussions about well-governed AI agents and data platforms in Azure.
@@ -235,16 +250,25 @@ This removes:
 
 ### "Purview account name is not available"
 
-Purview account names must be globally unique. Try a different name:
+**Problem**: Purview account names must be globally unique across all Azure tenants.
+
+**Solution**: Try a different name with additional uniqueness:
 
 ```bash
-azd env set PURVIEW_ACCOUNT_NAME another-unique-name
+# Linux/macOS
+azd env set PURVIEW_ACCOUNT_NAME another-unique-name-$(date +%s)
+
+# Or use any unique suffix
+azd env set PURVIEW_ACCOUNT_NAME my-purview-12345
+
 azd provision
 ```
 
 ### "Insufficient permissions"
 
-Ensure you have:
+**Problem**: You don't have the required permissions on the subscription.
+
+**Solution**: Ensure you have:
 - Contributor or Owner role on the subscription
 - `Microsoft.Purview` resource provider registered
 
@@ -255,21 +279,121 @@ az provider register --namespace Microsoft.Purview
 az provider show --namespace Microsoft.Purview --query "registrationState"
 ```
 
+Wait for the status to become "Registered" (typically 1-2 minutes).
+
 ### "Location not supported"
 
-Not all Azure regions support Purview. Check supported regions:
+**Problem**: Not all Azure regions support Purview.
+
+**Solution**: Check supported regions and choose one:
 
 ```bash
 az provider show --namespace Microsoft.Purview --query "resourceTypes[?resourceType=='accounts'].locations" -o table
 ```
 
+Common supported regions: `eastus`, `westus`, `westeurope`, `northeurope`, `southeastasia`, `japaneast`
+
+### Deployment is slow or hangs
+
+**Problem**: Purview provisioning can take 5-15 minutes.
+
+**Solution**: This is normal behavior. The deployment includes:
+1. Creating the Purview account
+2. Provisioning managed storage and Event Hub
+3. Configuring managed identity
+4. Setting up RBAC assignments
+
+Be patient and check the Azure Portal for progress if needed.
+
+### "azd command not found"
+
+**Problem**: Azure Developer CLI is not installed.
+
+**Solution**: Install azd following the [official guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) or use:
+
+```bash
+# Windows (PowerShell)
+winget install microsoft.azd
+
+# macOS
+brew tap azure/azd && brew install azd
+
+# Linux
+curl -fsSL https://aka.ms/install-azd.sh | bash
+```
+
+## FAQ
+
+### Can I provision multiple Purview accounts?
+
+⚠️ **No, in most cases.** Azure limits most tenants to **one Purview account per tenant**. Attempting to create a second account typically fails unless your organization has special quota approval. You can create multiple `azd` environments, but they should point to the same Purview account or different tenants.
+
+### How much does this cost?
+
+💰 **Approximately $250-300/month** for a basic setup (as of 2025):
+- Purview Account: ~$246/month (1 Capacity Unit at $0.342/hour)
+- Managed Storage: ~$2-5/month
+- Event Hub (Standard): ~$22/month (1 Throughput Unit)
+
+**Note**: Microsoft updated Purview pricing in January 2025. The new model charges based on governed assets rather than capacity units. Costs will vary based on the number of governed assets and data management runs. Use the [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) for accurate estimates.
+
+Use `azd down` to delete resources when not in use to avoid charges.
+
+### Can I automate data source scanning and classification?
+
+🔧 **Partially.** This repository only provisions the infrastructure. Data source registration, scanning, and classification require:
+- [Purview PowerShell module](https://learn.microsoft.com/en-us/powershell/module/az.purview/)
+- [Purview REST APIs](https://learn.microsoft.com/en-us/rest/api/purview/)
+- Azure Portal (for manual configuration)
+
+See the [What Can Be Automated](#what-can-be-automated-via-iac) section for details.
+
+### Is this production-ready?
+
+⚠️ **Use with caution.** This is a reference implementation. For production:
+- Review and adjust security settings (network isolation, private endpoints)
+- Implement proper monitoring and alerting
+- Follow your organization's compliance requirements
+- Test thoroughly in a non-production environment first
+- Consider engaging Azure support for production deployments
+
+### Can I use this with existing Azure resources?
+
+✅ **Yes.** This template creates a new resource group and Purview account. After provisioning, you can:
+- Connect to existing data sources (Azure SQL, ADLS, etc.)
+- Assign permissions to existing identities
+- Integrate with existing Azure governance policies
+
+### What if I need to customize the Bicep templates?
+
+✅ **Go ahead!** The templates are designed to be modified. Common customizations:
+- Change resource naming conventions
+- Add private endpoints
+- Modify RBAC assignments
+- Add additional Azure resources
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for guidance on extending the templates.
+
+### Does this work in Azure Government or other sovereign clouds?
+
+🌐 **It should, with adjustments.** You'll need to:
+- Set the correct Azure cloud environment
+- Verify Purview availability in your region
+- Update endpoints if needed
+
+Consult Azure documentation for cloud-specific guidance.
+
 ## Contributing
 
 This repository is designed as a reference implementation. Contributions that improve clarity, correctness, or Azure best practices are welcome.
 
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on how to contribute.
+
 ## License
 
-This project is provided as-is for educational and reference purposes.
+This project is provided as-is for educational and reference purposes. See the repository for license details.
+
+⚠️ **Disclaimer**: This is a community project and is not officially supported by Microsoft. Use at your own risk.
 
 ## Related Resources
 
