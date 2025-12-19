@@ -10,17 +10,17 @@ param principalId string
 param principalType string = 'User'
 
 // Built-in Azure RBAC role definitions
-// Owner role for the resource group
-var ownerRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')
+// Reader role for the resource group
+var readerRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
 
-// Assign Owner role to the principal for the resource group
-resource ownerRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, principalId, ownerRoleDefinitionId)
+// Assign Reader role to the principal for the resource group
+resource readerRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, principalId, readerRoleDefinitionId)
   properties: {
-    roleDefinitionId: ownerRoleDefinitionId
+    roleDefinitionId: readerRoleDefinitionId
     principalId: principalId
     principalType: principalType
   }
 }
 
-output roleAssignmentId string = ownerRoleAssignment.id
+output roleAssignmentId string = readerRoleAssignment.id
